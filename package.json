@@ -1,0 +1,53 @@
+{
+  "name": "handover-agent",
+  "version": "0.1.0",
+  "description": "AI-powered CLI agent that helps people receiving handovers - project takeovers, role transitions, team onboarding",
+  "main": "dist/index.js",
+  "bin": {
+    "handover": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "start": "node dist/index.js",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "lint": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "keywords": ["handover", "onboarding", "knowledge-transfer", "ai-agent", "cli", "claude"],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/handover-agent/handover-agent.git"
+  },
+  "homepage": "https://github.com/handover-agent/handover-agent#readme",
+  "bugs": {
+    "url": "https://github.com/handover-agent/handover-agent/issues"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "commander": "^13.1.0",
+    "inquirer": "^12.3.0",
+    "chalk": "^5.4.1",
+    "ora": "^8.1.1",
+    "boxen": "^8.0.1",
+    "glob": "^11.0.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "tsup": "^8.3.6",
+    "vitest": "^3.0.0",
+    "@types/node": "^22.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "type": "module"
+}
