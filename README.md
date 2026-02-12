@@ -1,6 +1,6 @@
 # Handover Agent
 
-AI-powered CLI agent that helps people receiving handovers -- project takeovers, role transitions, and team onboarding. It extracts knowledge from codebases, documentation, and git history, then provides intelligent Q&A with source citations, gap analysis, and self-improving skills.
+AI-powered knowledge transfer assistant available as both a CLI tool and a Claude Code plugin. Helps people receiving handovers -- project takeovers, role transitions, and team onboarding. It extracts knowledge from codebases, documentation, and git history, then provides intelligent Q&A with source citations, gap analysis, and self-improving skills.
 
 ```
 handover ask "How is the authentication system structured?"
@@ -32,6 +32,8 @@ npx handover-agent
 
 ## Quick Start
 
+### CLI
+
 ```bash
 # 1. Initialize a handover
 handover init -t project
@@ -51,6 +53,34 @@ handover gaps
 # 5. Evolve skills from usage patterns
 handover skills --evolve
 ```
+
+### Claude Code Plugin
+
+The plugin runs natively within Claude Code conversations with no API key required.
+
+**Installation (Local Development):**
+```bash
+claude --plugin-dir ./plugin
+```
+
+**Available Skills:**
+- `/handover:init` -- Initialize handover session
+- `/handover:extract` -- Extract knowledge from files/git
+- `/handover:ask` -- Ask questions with AI-powered answers
+- `/handover:gaps` -- Analyze knowledge gaps
+- `/handover:map` -- Visualize knowledge coverage
+- `/handover:status` -- Show handover progress
+- `/handover:feedback` -- Provide feedback on answers
+- `/handover:migrate` -- Migrate CLI data to plugin
+
+**Automatic Detection:**
+The plugin automatically detects handover situations via conversation hooks. When you start a new project or mention onboarding, it offers to initialize a handover session.
+
+**Knowledge Persistence:**
+The plugin includes an MCP server with 15 tools for persistent knowledge storage. Knowledge survives conversation compaction and is shared across all Claude Code sessions in the project.
+
+**Detailed Documentation:**
+See [`plugin/README.md`](plugin/README.md) for complete plugin documentation.
 
 ## Commands
 
@@ -159,6 +189,16 @@ Handover Agent is built around four specialized sub-agents coordinated by a cent
 - **Skill Builder** -- Creates and improves prompt templates based on recurring question patterns and feedback.
 
 The system improves over time: negative feedback and question patterns drive automatic skill evolution, making future answers more accurate.
+
+### Claude Code Plugin Variant
+
+The Claude Code plugin provides the same core functionality with native integration:
+- **8 Skills** -- Commands invokable via `/handover:*` in Claude Code
+- **3 Agents** -- Specialized subagents (knowledge-extractor, qa-responder, gap-analyzer) using Claude Code's Task API
+- **MCP Server** -- 15 tools for persistent knowledge storage across sessions
+- **Auto-detection Hooks** -- Automatic handover situation detection in conversations
+
+The plugin shares the same knowledge extraction and Q&A logic but adapts to Claude Code's environment.
 
 ## Configuration
 
