@@ -1,0 +1,14 @@
+# Handover Plugin - Suggested .gitignore entries
+# Copy the relevant lines to your project's .gitignore
+
+# Personal handover data (do not share)
+.handover/interactions/
+.handover/feedback/
+.handover/.lock
+
+# Uncomment to also ignore knowledge base (keep for personal use only)
+# .handover/knowledge/
+# .handover/profile.json
+
+# Uncomment to ignore everything (fully personal handover)
+# .handover/

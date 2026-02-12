@@ -1,0 +1,26 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "handover",
+  "description": "AI-powered knowledge transfer for project takeovers, role transitions, and team onboarding",
+  "owner": {
+    "name": "handover-agent",
+    "email": "handover-agent@users.noreply.github.com"
+  },
+  "plugins": [
+    {
+      "name": "handover",
+      "description": "Extract, organize, and query project knowledge to accelerate handovers",
+      "path": ".",
+      "categories": ["productivity", "knowledge-management", "onboarding"],
+      "tags": [
+        "handover",
+        "onboarding",
+        "knowledge-transfer",
+        "project-takeover",
+        "team-onboarding",
+        "documentation",
+        "q-and-a"
+      ]
+    }
+  ]
+}
