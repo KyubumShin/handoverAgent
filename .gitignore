@@ -1,33 +1,14 @@
+# Handover session data (ephemeral)
+.handover/
+
 # Dependencies
 node_modules/
 
-# Build output
+# Build artifacts
 dist/
 
-# Data directory
-data/
-
-# Environment
-.env
-.env.local
-.env.*.local
-
-# Logs
-*.log
-npm-debug.log*
-
-# OS files
+# OS
 .DS_Store
-Thumbs.db
 
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# Coverage
-coverage/
-
-# Handover local data
-.handover/data/
+# OMC state
+.omc/

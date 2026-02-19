@@ -1,0 +1,35 @@
+{
+  "hooks": [
+    {
+      "event": "UserPromptSubmit",
+      "command": "node hooks/on-prompt.mjs",
+      "timeout": 3000
+    },
+    {
+      "event": "PostToolUseFailure",
+      "command": "node hooks/on-tool-fail.mjs",
+      "timeout": 3000
+    },
+    {
+      "event": "PostToolUse",
+      "command": "node hooks/on-tool-done.mjs",
+      "matcher": "Bash",
+      "timeout": 3000
+    },
+    {
+      "event": "SessionStart",
+      "command": "node hooks/on-session-start.mjs",
+      "timeout": 5000
+    },
+    {
+      "event": "Stop",
+      "command": "node hooks/on-session-end.mjs",
+      "timeout": 5000
+    },
+    {
+      "event": "PreCompact",
+      "command": "node hooks/on-compact.mjs",
+      "timeout": 3000
+    }
+  ]
+}
