@@ -25,7 +25,7 @@ try {
 
   updateSessionMeta({ lastCompactedAt: new Date().toISOString() });
 
-  process.stdout.write('[Handover] Session summary saved before compaction.\n');
+  // Silent — no stdout during compaction to save context tokens
 } catch {
   // Silent failure
 }

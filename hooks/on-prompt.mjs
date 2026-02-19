@@ -29,7 +29,7 @@ try {
 
   if (prompt.trim()) {
     const topics = extractTopics(prompt);
-    appendEntry('prompts', { prompt: prompt.slice(0, 500), topics });
+    appendEntry('prompts', { prompt: prompt.slice(0, 100), topics });
   }
 } catch {
   // Silent failure — hooks must not break the session

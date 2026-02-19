@@ -25,7 +25,7 @@ export function detectErrors(output) {
       if (pattern.regex.test(line)) {
         const fileLine = line.match(FILE_LINE_PATTERN);
         errors.push({
-          error: line.trim().slice(0, 200),
+          error: line.trim().slice(0, 150),
           type: pattern.type,
           file: fileLine ? fileLine[1] : undefined,
           line: fileLine ? parseInt(fileLine[2]) : undefined,
