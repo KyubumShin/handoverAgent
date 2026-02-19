@@ -5,11 +5,15 @@ const HANDOVER_DIR = '.handover';
 const SESSION_DIR = join(HANDOVER_DIR, 'session');
 const ARCHIVE_DIR = join(HANDOVER_DIR, 'archive');
 const CONFIG_FILE = join(HANDOVER_DIR, 'config.json');
+const LEDGER_FILE = join(HANDOVER_DIR, 'error-ledger.jsonl');
 
 const DEFAULT_CONFIG = {
   maxChars: 1000,
   pruneAgeDays: 7,
-  maxArchivedSessions: 10
+  maxArchivedSessions: 10,
+  promotionThreshold: 2,
+  maxLedgerEntries: 50,
+  ledgerPruneAgeDays: 30
 };
 
 export function ensureDir(dirPath) {
@@ -90,4 +94,25 @@ export function hasSessionData() {
   const prompts = join(SESSION_DIR, 'prompts.jsonl');
   const errors = join(SESSION_DIR, 'errors.jsonl');
   return existsSync(prompts) || existsSync(errors);
+}
+
+export function readLedger() {
+  if (!existsSync(LEDGER_FILE)) return [];
+  try {
+    return readFileSync(LEDGER_FILE, 'utf8')
+      .trim()
+      .split('\n')
+      .filter(Boolean)
+      .map(line => JSON.parse(line));
+  } catch {
+    return [];
+  }
+}
+
+export function writeLedger(entries) {
+  ensureDir(HANDOVER_DIR);
+  const tmpFile = LEDGER_FILE + '.tmp';
+  const content = entries.map(e => JSON.stringify(e)).join('\n') + '\n';
+  writeFileSync(tmpFile, content);
+  renameSync(tmpFile, LEDGER_FILE);
 }

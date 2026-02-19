@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { appendEntry } from './lib/session-store.mjs';
+import { detectInstructionViolation } from './lib/error-detector.mjs';
 
 const STOP_WORDS = new Set([
   'the', 'this', 'that', 'with', 'from', 'have', 'been', 'will',
@@ -30,6 +31,18 @@ try {
   if (prompt.trim()) {
     const topics = extractTopics(prompt);
     appendEntry('prompts', { prompt: prompt.slice(0, 100), topics });
+
+    // Detect instruction violations
+    const violation = detectInstructionViolation(prompt);
+    if (violation) {
+      appendEntry('errors', {
+        tool: 'user_prompt',
+        type: 'instruction_violation',
+        cause: violation.signal,
+        summary: violation.summary,
+        raw: prompt.slice(0, 300),
+      });
+    }
   }
 } catch {
   // Silent failure — hooks must not break the session

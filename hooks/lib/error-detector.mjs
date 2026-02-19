@@ -14,6 +14,28 @@ const ERROR_PATTERNS = [
 
 const FILE_LINE_PATTERN = /(?:at\s+)?([^\s:()]+\.[a-z]{1,4}):(\d+)/i;
 
+const INSTRUCTION_PATTERNS = [
+  /\bi told you to\b/i,
+  /\bi already said\b/i,
+  /\bdon'?t do that\b/i,
+  /\bstop doing\b/i,
+  /\bstop changing\b/i,
+  /\bthat'?s wrong\b/i,
+  /\bthat'?s incorrect\b/i,
+  /\bnot what i asked\b/i,
+  /\bnot what i wanted\b/i,
+  /\byou ignored\b/i,
+  /\byou missed\b/i,
+  /\byou forgot\b/i,
+  /\byou were supposed to\b/i,
+  /\bwhy did you\b/i,
+  /\bread the instructions\b/i,
+  /\bi didn'?t ask\b/i,
+  /\bi didn'?t say\b/i,
+  /\bi didn'?t want\b/i,
+  /\bno,\s+/i,
+];
+
 export function detectErrors(output) {
   if (!output || typeof output !== 'string') return [];
 
@@ -45,12 +67,52 @@ export function categorizeError(errorText) {
   return 'unknown_error';
 }
 
+/**
+ * Strip stack traces, normalize whitespace, extract core message.
+ */
+export function summarizeError(rawText) {
+  if (!rawText) return '';
+  return rawText
+    .split('\n')
+    .filter(line => !/^\s+at\s/.test(line))  // strip stack trace lines
+    .join(' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 150);
+}
+
+/**
+ * Format error info for the session log (new format with cause/summary/raw).
+ */
 export function formatForLog(tool, errorInfo) {
+  const cause = errorInfo.file
+    ? `${errorInfo.file}${errorInfo.line ? ':' + errorInfo.line : ''}`
+    : tool;
   return {
     tool,
-    error: errorInfo.error,
     type: errorInfo.type,
-    file: errorInfo.file,
-    line: errorInfo.line,
+    cause,
+    summary: summarizeError(errorInfo.error),
+    raw: (errorInfo.error || '').slice(0, 500),
   };
+}
+
+/**
+ * Detect instruction violations from user prompt text.
+ * Returns { signal, summary } or null.
+ * Conservative: only triggers on short prompts (<300 chars) to avoid false positives.
+ */
+export function detectInstructionViolation(promptText) {
+  if (!promptText || promptText.length > 300) return null;
+
+  for (const pattern of INSTRUCTION_PATTERNS) {
+    const match = promptText.match(pattern);
+    if (match) {
+      return {
+        signal: match[0].trim(),
+        summary: promptText.slice(0, 100),
+      };
+    }
+  }
+  return null;
 }

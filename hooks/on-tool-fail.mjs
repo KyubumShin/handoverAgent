@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { appendEntry } from './lib/session-store.mjs';
-import { categorizeError } from './lib/error-detector.mjs';
+import { categorizeError, summarizeError } from './lib/error-detector.mjs';
 
 try {
   let input = '';
@@ -13,10 +13,13 @@ try {
   const error = data?.data?.error || data?.data?.output || '';
 
   if (error) {
+    const raw = String(error).slice(0, 500);
     appendEntry('errors', {
       tool: toolName,
-      error: String(error).slice(0, 500),
-      type: categorizeError(String(error)),
+      type: categorizeError(raw),
+      cause: toolName,
+      summary: summarizeError(raw),
+      raw,
     });
   }
 } catch {
