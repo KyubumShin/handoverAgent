@@ -8,8 +8,9 @@
 │                                                             │
 │  SessionStart                                               │
 │  ┌──────────────┐                                           │
-│  │on-session-   │──→ Read last-session.json                 │
-│  │start.mjs     │──→ Inject context to Claude via stdout    │
+│  │on-session-   │──→ Recover stale session (if unfinalized) │
+│  │start.mjs     │──→ Read last-session.json                 │
+│  │              │──→ Inject context to Claude via stdout    │
 │  └──────────────┘                                           │
 │         ↓                                                   │
 │  During Session (hooks fire automatically)                  │
@@ -31,9 +32,10 @@
 │         ↓                                                   │
 │  Stop / SessionEnd                                          │
 │  ┌──────────────┐                                           │
-│  │on-session-   │──→ Write .handover/last-session.json      │
-│  │end.mjs       │──→ Ledger pipeline (see below)            │
-│  │              │──→ Archive session → .handover/archive/   │
+│  │on-session-   │──→ finalizeSession() (shared pipeline):    │
+│  │end.mjs       │   → Write .handover/last-session.json     │
+│  │              │   → Ledger pipeline (see below)           │
+│  │              │   → Archive session → .handover/archive/  │
 │  └──────────────┘                                           │
 └─────────────────────────────────────────────────────────────┘
 
@@ -153,6 +155,10 @@ Skills are just markdown instructions telling Claude what to do. `/handover:init
 
 The ledger is written via a temp file + `renameSync` to prevent corruption if the process is killed mid-write. This is a standard pattern for atomic file updates.
 
+### 11. Stale session recovery — no data left behind
+
+If a session ends abnormally (`/clear`, terminal close, process kill), the `Stop` hook never fires and session data is left unprocessed. On next `SessionStart`, `on-session-start.mjs` detects any unfinalized session (`.handover/session/` exists with `meta.finalized !== true`) and runs the full `finalizeSession()` pipeline — ledger merge, pruning, promotion, CLAUDE.md update, archive — before proceeding. This ensures zero error data loss across abnormal session boundaries. The `finalizeSession()` function is shared between `on-session-end.mjs` and `on-session-start.mjs` via `hooks/lib/finalize-session.mjs`.
+
 ## File Responsibilities
 
 | File | Layer | Role |
@@ -160,8 +166,9 @@ The ledger is written via a temp file + `renameSync` to prevent corruption if th
 | `hooks/on-prompt.mjs` | Capture | Log prompts + extract topics + detect instruction violations |
 | `hooks/on-tool-fail.mjs` | Capture | Log tool failures with cause/summary/raw |
 | `hooks/on-tool-done.mjs` | Capture | Detect build/test errors in successful Bash output |
-| `hooks/on-session-start.mjs` | Bridge | Inject previous session context into new session |
-| `hooks/on-session-end.mjs` | Lifecycle | Finalize, write summary, run ledger pipeline, archive |
+| `hooks/on-session-start.mjs` | Bridge | Recover stale sessions + inject previous session context |
+| `hooks/on-session-end.mjs` | Lifecycle | Finalize session via shared pipeline |
+| `hooks/lib/finalize-session.mjs` | Lifecycle | Shared finalization: summary, ledger pipeline, archive |
 | `hooks/on-compact.mjs` | Lifecycle | Save session snapshot before conversation compaction |
 | `hooks/lib/session-store.mjs` | Storage | JSONL append/read, archival, config, meta, ledger I/O |
 | `hooks/lib/claude-md.mjs` | Storage | CLAUDE.md marker parse/write |

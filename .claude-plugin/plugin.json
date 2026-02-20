@@ -2,6 +2,6 @@
   "name": "handover",
   "version": "2.0.0",
   "description": "Automatic session context capture and knowledge transfer for Claude Code",
-  "skills": "../skills",
-  "hooks": "../hooks/hooks.json"
+  "skills": "./skills",
+  "hooks": "./hooks/hooks.json"
 }

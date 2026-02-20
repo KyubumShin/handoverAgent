@@ -1,32 +1,31 @@
 #!/usr/bin/env node
-import { readEntries, hasSessionData } from './lib/session-store.mjs';
+import { hasSessionData, getSessionMeta } from './lib/session-store.mjs';
+import { finalizeSession } from './lib/finalize-session.mjs';
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 
+const SESSION_DIR = join('.handover', 'session');
 const LAST_SESSION = join('.handover', 'last-session.json');
 
 try {
+  // Recovery: detect stale session from /clear, crash, or terminal close.
+  // Check session dir existence (not just data files) to catch empty stale sessions too.
+  if (existsSync(SESSION_DIR)) {
+    const meta = getSessionMeta();
+    if (!meta.finalized) {
+      finalizeSession();
+      // Session is now archived and last-session.json is written.
+      // Fall through to read it below.
+    }
+  }
+
+  // Normal session-start: read last-session summary
   let errorCount = 0;
   let errorsByType = {};
   let recentErrors = [];
   let topTopics = [];
-  let source = null;
 
-  if (hasSessionData()) {
-    source = 'session';
-    const errors = readEntries('errors');
-    const prompts = readEntries('prompts');
-    errorCount = errors.length;
-    for (const e of errors) {
-      errorsByType[e.type] = (errorsByType[e.type] || 0) + 1;
-    }
-    recentErrors = errors.slice(-3).map(e => e.error.slice(0, 100));
-    const allTopics = prompts.flatMap(p => p.topics || []);
-    const counts = {};
-    for (const t of allTopics) counts[t] = (counts[t] || 0) + 1;
-    topTopics = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([t]) => t);
-  } else if (existsSync(LAST_SESSION)) {
-    source = 'summary';
+  if (existsSync(LAST_SESSION)) {
     const s = JSON.parse(readFileSync(LAST_SESSION, 'utf8'));
     errorCount = s.errorCount || 0;
     errorsByType = s.errorsByType || {};
@@ -34,7 +33,7 @@ try {
     topTopics = s.topTopics || [];
   }
 
-  if (!source) {
+  if (errorCount === 0 && topTopics.length === 0) {
     process.stdout.write('[Handover] No previous session data.\n');
     process.exit(0);
   }

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "handover-local",
+  "description": "Automatic session context capture and knowledge transfer for Claude Code",
+  "owner": {
+    "name": "local"
+  },
+  "plugins": [
+    {
+      "name": "handover",
+      "description": "Automatic session context capture and knowledge transfer for Claude Code",
+      "version": "2.0.0",
+      "source": "./",
+      "category": "productivity"
+    }
+  ],
+  "version": "2.0.0"
+}
